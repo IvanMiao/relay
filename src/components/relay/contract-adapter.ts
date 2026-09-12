@@ -31,6 +31,17 @@ export function fromContract(data: unknown): CaseSnapshot {
     id: c.id,
     version: c.version,
     title: f.item || "Purchase request",
+    requestText: c.requestText,
+    conversations: c.clarifications
+      .filter((q) => q.deliveryStatus === "delivered")
+      .map((q) => ({
+        id: q.id,
+        recipient: person(q.recipientPersonId),
+        question: q.question,
+        reply: q.reply
+          ? { text: q.reply.text, receivedAt: q.reply.receivedAt }
+          : null,
+      })),
     stage: c.stage,
     status: c.status,
     facts: {
@@ -118,6 +129,7 @@ export function fromContract(data: unknown): CaseSnapshot {
       ? {
           url: c.browserObservation.screenshot.url,
           observedAt: c.browserObservation.observedAt,
+          summary: c.browserObservation.summary,
         }
       : undefined,
     receipt: c.receipt

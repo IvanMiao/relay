@@ -43,3 +43,33 @@ test("reply targets delivered clarification and reviews retain the exact nested 
   assert.equal(liveSnapshot(contact).pendingAction?.type, "contact_person");
   assert.match(liveSnapshot(contact).pendingAction?.destination ?? "", /Carol/);
 });
+
+test("split inbox shows only delivered messages and preserves replies after handoff", () => {
+  const wire = structuredClone(caseSnapshots.waitingForReply);
+  for (const status of [
+    "pending_authorization",
+    "pending_delivery",
+    "failed",
+  ] as const) {
+    wire.clarifications[0].deliveryStatus = status;
+    assert.deepEqual(fromContract(wire).conversations, []);
+  }
+  wire.clarifications[0].deliveryStatus = "delivered";
+  assert.equal(
+    fromContract(wire).conversations?.[0].question,
+    wire.clarifications[0].question,
+  );
+  assert.equal(fromContract(wire).conversations?.[0].reply, null);
+  for (const snapshot of [
+    caseSnapshots.actionReview,
+    caseSnapshots.completed,
+  ]) {
+    const view = fromContract(snapshot);
+    assert.equal(view.requestText, snapshot.requestText);
+    assert.equal(view.conversations?.[0].recipient, "Carol");
+    assert.deepEqual(view.conversations?.[0].reply, {
+      text: snapshot.clarifications[0].reply!.text,
+      receivedAt: snapshot.clarifications[0].reply!.receivedAt,
+    });
+  }
+});

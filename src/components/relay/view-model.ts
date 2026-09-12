@@ -21,6 +21,13 @@ export type CaseSnapshot = {
   id: string;
   version: number;
   title: string;
+  requestText?: string;
+  conversations?: {
+    id: string;
+    recipient: string;
+    question: string;
+    reply: { text: string; receivedAt: string } | null;
+  }[];
   stage: CaseStage;
   status: CaseStatus;
   facts: {
@@ -61,7 +68,7 @@ export type CaseSnapshot = {
     reviewedVersion: number;
   };
   events: { id: string; timestamp: string; title: string; detail: string }[];
-  browserObservation?: { url: string; observedAt: string };
+  browserObservation?: { url: string; observedAt: string; summary?: string };
   receipt: null | {
     id: string;
     url?: string;

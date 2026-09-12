@@ -136,3 +136,7 @@ Do not animate fictional browser activity or move a request into “completed”
 Scope order: working case layout → review and evidence → verified execution feedback → visual consistency → optional brand illustration and motion polish. The prototype must demonstrate real work before investing in presentation beyond the shared visual foundation.
 
 <!-- Design-spec self-review: product fit 5/5, hierarchy 4/5, evidence 4/5, restraint 4/5, requirements clarity 4/5, verification honesty 5/5. These are editorial assessments of the specification, not scores from an implemented UI or user study. -->
+
+## Implemented split-screen demo
+
+The homepage now presents two fixed identities: Alex's purchasing workspace and the current coordinator's demo inbox. A shared stage strip and turn cue tell the presenter where to act. Inbox content comes only from delivered clarifications; replies remain visible after the agent resumes and after completion. Contact and draft creation each have an explicit Alex review with a frozen action/version. Actual browser observations expand below the two workspaces during execution. The layout uses the existing Geist, white/green palette and fine borders, stacks below 801 px, and respects reduced motion. `/workspace` preserves the original detailed interface.

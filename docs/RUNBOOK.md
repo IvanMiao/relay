@@ -19,15 +19,17 @@ For a production-mode local check, run `npm run build`, then `npm start -- --por
 
 ## Three-minute walkthrough
 
-1. Click **Connect agent**. Use the selected synthetic Northstar camera quote and submit the request.
-2. Relay reads the current and archived policies, Alice-to-Bob handover and Bob-to-Carol delegation. It proposes a question to the available coordinator. Inspect **Sources** and **Activity**.
-3. Click **Review message**, read the exact text and local-thread destination, then **Allow action**. No Slack/email message is sent.
-4. In the local participant thread, reply: “Use ENG-240. We need non-contact temperature mapping to identify heat buildup and validate the thermal performance of the next hardware prototype. Attach the original supplier quote.”
-5. The same agent session incorporates the reply and proposes a purchase draft. Review the amount, cost center, justification and original attachment; allow the action.
-6. Relay fills each field and uploads the original bytes through the actual portal form, clicks **Save draft**, reopens the saved page, checks every field and downloads the attachment to verify its SHA-256.
-7. Open the saved draft and browser verification image. The outcome is **draft verified, awaiting organizational review**, never an approved or issued purchase order.
+The homepage is a two-person observer view: Alex's procurement workspace on the left, Carol's local demo inbox on the right. Use a browser wider than 800 px for side-by-side presentation; smaller screens stack the two labeled roles. The original diagnostic workspace is available at `/workspace`.
 
-Model turns take time; the UI polls real persisted state. It contains no scripted success timer. **UI preview** remains explicitly separate and makes no model calls or writes.
+1. Click **New demo** if a previous request is displayed, then **Ask Relay to handle it**. The attached synthetic Northstar camera quote is $2,450.
+2. Relay reads policy and handover evidence. Explain the path: old guide → Alice → Bob on leave → Carol covering. **View evidence** opens the actual sources.
+3. As Alex, click **Review message**, then **Allow message**. The right inbox stays empty until authorization succeeds.
+4. As Carol on the right, click **Use example reply**, review/edit it, then **Send reply**. This confirms ENG-240 and the required materials. The example only fills the composer; it does not send automatically.
+5. Watch the same agent session carry the reply back to Alex's materials. As Alex, click **Review purchase draft**, inspect all fields and the original attachment, then **Allow draft creation**.
+6. The execution section appears below both people. It shows actual captured browser observations and persisted actions as Relay fills the portal, uploads the original quote, saves the draft, reopens it, and checks its fields and downloaded attachment hash.
+7. **Open saved draft** shows the verified result. Both sides retain the conversation after completion and refresh. The outcome is a draft awaiting organizational review, never an approved or issued order.
+
+Model turns take time. The role cue and stages follow real persisted state, with no scripted success timer. Messages are local demo deliveries, not Slack/email. The detailed workspace retains a separately labeled UI preview for offline inspection.
 
 ## State and recovery
 
@@ -66,3 +68,7 @@ Recovery uses an isolated copy of the saved case with the save result marked unk
 One synthetic equipment quote and one dated company scenario are supported. The September 10–18, 2026 delegation is evaluated against the server's actual date; outside that window Bob is the available coordinator. The model chooses workflow tools and prepares questions/justifications; a constrained executor implements browser interaction with stable accessible labels. This is not a general-purpose vision-driven browser operator.
 
 The local participant thread simulates communication. Production authentication, multiple organizations, live Slack/Teams connectors, real procurement integrations and budget/order approval are outside this prototype. Deploying this unauthenticated local demo publicly is not part of its operating model.
+
+### Split-screen integration check (September 12)
+
+A fresh request completed through both role panels: message review and delivery, Carol's persisted reply, Alex's draft review, actual portal save, and field/attachment verification. Result: `PO-0BD82461` for `case_3ccf7331-6a17-4c3a-8350-0e35548aa2f9`. The model ended one execution turn before taking an action; **Retry from saved state** resumed successfully with the same reviewed authorization. This intermittent model stop remains a visible recovery path, not a guaranteed uninterrupted demo. Responsive checks at 320, 375, 414 and 768 px found no horizontal overflow.

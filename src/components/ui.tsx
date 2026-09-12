@@ -53,10 +53,10 @@ export function AppHeader({
         )}
         <span
           className="user-avatar"
-          title="Demo requester"
-          aria-label="Demo requester"
+          title="Alex Lee · Demo requester"
+          aria-label="Alex Lee · Demo requester"
         >
-          JD
+          AL
         </span>
       </div>
     </header>
