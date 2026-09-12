@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test src/portal/*.test.ts src/components/relay/*.test.ts tests/*.test.mjs",
     "format:check": "prettier --check src next.config.ts tsconfig.json package.json",
-    "check:agents": "node --env-file-if-exists=.env.local scripts/check-agents-api.mjs"
+    "check:agents": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/check-agents-api.mjs"
   },
   "engines": {
     "node": ">=22.13.0"

@@ -1,6 +1,6 @@
 # OpenAI Agents API 接入层
 
-状态：已实现 SDK 适配器和连通验证脚本，通过离线协议测试；尚未进行真实 API 调用。当前执行环境未配置 `OPENAI_API_KEY`。
+状态：SDK 适配器已合并；离线测试和真实 API 连通测试均通过。2026-09-12 使用本地配置成功验证会话创建、工具调用及同一会话第二轮的随机 token 记忆。Case worker 与浏览器执行仍未实现。
 
 ## 三层接口
 
@@ -47,7 +47,7 @@ Relay 界面 → /api/cases → Case 服务与持久化 → OpenAI Agents API se
 该 key 只放服务端；账号的实际可用权限要通过连通测试确认。
 来源：[官方 quickstart](https://developers.openai.com/api/docs/guides/agents-api/quickstart)。
 
-1. 将 `.env.example` 复制为 `.env.local`，在本地填写 `OPENAI_API_KEY`，按账号可用模型配置 `OPENAI_AGENT_MODEL`。`.env.local` 已被 Git 忽略。
+1. 将 `.env.example` 复制为 `.env` 或 `.env.local`，在本地填写 `OPENAI_API_KEY`，按账号可用模型配置 `OPENAI_AGENT_MODEL`。`.env.local` 已被 Git 忽略。
 2. 合并分支已安装并锁定 `openai`，本地确认暴露 `beta.agents.sessions`。运行 `npm ci` 安装。
 3. 在 Node 22.6+ 环境运行：
 

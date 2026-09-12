@@ -42,6 +42,8 @@ See the [UI handoff](docs/UI-HANDOFF.md) for routes, payloads, browser verificat
 - [Two-person development plan](docs/TWO-PERSON-PLAN.md): individual ownership, integration contracts, checkpoints, and ready-to-use development briefs.
 - [Frozen API contract v1](docs/API-CONTRACT.md): case APIs, portal integration, authorization and retry rules. Shared types: [contracts.ts](src/lib/contracts.ts); UI examples: [case snapshots](fixtures/case-snapshots.ts).
 
-**Status:** Product UI and persistent portal implemented; v1 contracts and fixtures merged. Agent runtime and live end-to-end execution are still missing from the remote branches.
+**Status:** Product UI and persistent portal implemented; v1 contracts and fixtures merged. Real OpenAI session/tool/continuation probe passed. The case worker and browser executor remain missing, so the full live workflow is not yet available.
 
 See [integration results and remaining work](docs/INTEGRATION.md).
+
+[Agents API runtime and probe](docs/AGENT-RUNTIME.md).

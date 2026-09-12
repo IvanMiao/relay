@@ -19,7 +19,7 @@ Integrated agent commits: `70ebb06` (v1 contracts) and `7a1ff5a` (OpenAI adapter
 - `node scripts/check-portal.mjs relay:integration:v1` passed: v1 response, exact attachment bytes/hash, repeated save returning the same ID, modified save returning 409, invalid decimal returning 422, foreign origin returning 403, absent lookup returning null.
 - Existing local draft records remain readable.
 - Browser connection displays an explicit missing-case-endpoint error and remains in preview.
-- Installed SDK exposes `beta.agents.sessions`. No API key is configured locally, so real OpenAI connectivity is unverified.
+- OpenAI SDK 7.15.0 exposes `beta.agents.sessions`. With the user's local `.env` configuration, `npm run check:agents` passed against the real API: created a session, executed a function, and recalled the random token through a function in a second turn of the same session.
 
 ## Required for live end-to-end integration
 
@@ -29,6 +29,6 @@ The latest remote agent commit explicitly leaves these unimplemented:
 2. Context artifact bytes and `/api/artifacts/:id`; fixture references alone are not files.
 3. A durable, serialized case worker with business tools and server-side authorization checks.
 4. The browser executor, uncertain-save reconciliation and receipt verification against authorized fields and attachment bytes.
-5. Server-side `OPENAI_API_KEY`, followed by `npm run check:agents` and a live case walkthrough.
+5. A live case walkthrough once those services are implemented. API credentials and the isolated connectivity probe have now been verified locally.
 
-The adapter, UI and portal are integrated; this is not yet a working autonomous procurement agent. A passing SDK mock test does not establish real API access or business completion.
+The adapter, UI and portal are integrated; this is not yet a working autonomous procurement agent. The real API probe establishes connectivity and session continuation; it does not establish procurement workflow completion.
