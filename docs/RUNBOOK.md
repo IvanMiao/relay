@@ -19,14 +19,14 @@ For a production-mode local check, run `npm run build`, then `npm start -- --por
 
 ## Three-minute walkthrough
 
-The homepage is a two-person observer view: Alex's procurement workspace on the left, Carol's local demo inbox on the right. Use a browser wider than 800 px for side-by-side presentation; smaller screens stack the two labeled roles. The original diagnostic workspace is available at `/workspace`.
+The homepage opens with the problem: Alex has a quote, the guide names Alice, the handover points to Bob, and Bob is on leave. Starting the live request opens a two-person observer view: Alex's procurement workspace on the left, the verified coordinator's local demo inbox on the right. Use a browser wider than 800 px for side-by-side presentation; smaller screens stack the two labeled roles. The original diagnostic workspace is available at `/workspace`.
 
-1. Click **New demo** if a previous request is displayed, then **Ask Relay to handle it**. The attached synthetic Northstar camera quote is $2,450.
-2. Relay reads policy and handover evidence. Explain the path: old guide → Alice → Bob on leave → Carol covering. **View evidence** opens the actual sources.
+1. Start on **The problem** screen. Explain the blocked handoff before clicking **Find the owner with Relay**. The attached synthetic Northstar camera quote is $2,450. **Alex’s request & attached quote** lets you inspect or edit the request.
+2. Relay reads policy and handover evidence. Explain the path: old guide → Alice → Bob on leave → Carol covering. Expand **How Relay found the owner · source evidence**, then **View evidence** to inspect the sources.
 3. As Alex, click **Review message**, then **Allow message**. The right inbox stays empty until authorization succeeds.
 4. As Carol on the right, click **Use example reply**, review/edit it, then **Send reply**. This confirms ENG-240 and the required materials. The example only fills the composer; it does not send automatically.
 5. Watch the same agent session carry the reply back to Alex's materials. As Alex, click **Review purchase draft**, inspect all fields and the original attachment, then **Allow draft creation**.
-6. The execution section appears below both people. It shows actual captured browser observations and persisted actions as Relay fills the portal, uploads the original quote, saves the draft, reopens it, and checks its fields and downloaded attachment hash.
+6. During execution the purchasing system becomes the primary panel, with both people’s conversation preserved below. After completion its verification image remains below the conversation. It shows actual captured browser observations and persisted actions as Relay fills the portal, uploads the original quote, saves the draft, reopens it, and checks its fields and downloaded attachment hash.
 7. **Open saved draft** shows the verified result. Both sides retain the conversation after completion and refresh. The outcome is a draft awaiting organizational review, never an approved or issued order.
 
 Model turns take time. The role cue and stages follow real persisted state, with no scripted success timer. Messages are local demo deliveries, not Slack/email. The detailed workspace retains a separately labeled UI preview for offline inspection.
@@ -72,3 +72,15 @@ The local participant thread simulates communication. Production authentication,
 ### Split-screen integration check (September 12)
 
 A fresh request completed through both role panels: message review and delivery, Carol's persisted reply, Alex's draft review, actual portal save, and field/attachment verification. Result: `PO-0BD82461` for `case_3ccf7331-6a17-4c3a-8350-0e35548aa2f9`. The model ended one execution turn before taking an action; **Retry from saved state** resumed successfully with the same reviewed authorization. This intermittent model stop remains a visible recovery path, not a guaranteed uninterrupted demo. Responsive checks at 320, 375, 414 and 768 px found no horizontal overflow.
+
+## Tell the story through the interface
+
+- **Problem:** Alex has the supplier quote, but the process owner and requirements are unclear. The opening shows why following the guide stalls the request. Do not begin with the saved PO screen.
+- **Act 1 — Find the owner:** The right-hand identity is initially unknown. It becomes Carol only after the live agent verifies the current handover and cover. The chapter explains the evidence that changed the route.
+- **Act 2 — Carry the context:** Alex authorizes the targeted message. Carol receives the quote and purchase context together, then supplies the missing budget code and justification. Alex does not forward or retype the conversation.
+- **Act 3 — Do the paperwork:** The reply populates Alex’s request. After Alex reviews it, Relay creates the actual draft.
+- **Outcome:** The before/after panel maps each original obstacle to the verified contact, confirmed details, and stored draft ID. Finance approval remains separate.
+
+**Back to the problem** returns to the setup without deleting or pausing the saved case. **Continue the saved request** / **See the last completed request** restores its live view. Refresh also opens the setup, so a presenter starts with the premise rather than an unexplained completed record. Progress and the outcome still require actual persisted case state.
+
+The narrative revision was exercised end to end with a new live request, producing verified draft `PO-F4A2B819` without a recovery click. The setup and active conversation were checked at 320, 375, 414 and 768 px.

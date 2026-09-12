@@ -140,3 +140,7 @@ Scope order: working case layout → review and evidence → verified execution 
 ## Implemented split-screen demo
 
 The homepage now presents two fixed identities: Alex's purchasing workspace and the current coordinator's demo inbox. A shared stage strip and turn cue tell the presenter where to act. Inbox content comes only from delivered clarifications; replies remain visible after the agent resumes and after completion. Contact and draft creation each have an explicit Alex review with a frozen action/version. Actual browser observations expand below the two workspaces during execution. The layout uses the existing Geist, white/green palette and fine borders, stacks below 801 px, and respects reduced motion. `/workspace` preserves the original detailed interface.
+
+## Narrative revision
+
+The demonstration now opens with the blocked purchase and the outdated-guide / handover / leave chain. A primary handoff starts the live agent. The workspace uses three causal chapters—find the owner, carry the context, do the paperwork—with headlines derived from actual case state. The coordinator stays unidentified until resolved. Alex’s review action precedes supporting evidence, and the final before/after panel uses the real contact, cost center and receipt. The initial setup is scenario context; it is not a simulated agent run.
