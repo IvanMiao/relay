@@ -2,7 +2,7 @@
 
 **Date:** September 12, 2026
 
-**Status:** Design requirements; no product UI has been implemented or visually tested.
+**Status:** Design requirements with an implemented UI foundation. See [UI handoff](UI-HANDOFF.md) for the current implementation and verification scope.
 
 **Reference:** [Baseten homepage](https://www.baseten.co/), selected by the user as a public visual reference for Relay.
 

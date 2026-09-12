@@ -1,6 +1,6 @@
 # Relay — Two-Person Development Plan
 
-**Scope:** One working procurement case in a two-hour prototype. This plan assigns future development; application code is not yet implemented.
+**Scope:** One working procurement case in a two-hour prototype. The product UI and local portal track is now implemented; see [UI handoff](UI-HANDOFF.md). Agent development and live integration remain outstanding.
 
 **Default assignment:** The project initiator owns product experience and the test procurement portal. The teammate owns the agent and execution. Swap the people if their strengths suggest it, while keeping the ownership boundaries intact.
 

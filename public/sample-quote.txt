@@ -1,0 +1,9 @@
+RELAY DEMO — SYNTHETIC SUPPLIER QUOTE
+Quote reference: QT-2026-084
+Supplier: Northstar Instruments (fictional)
+Item: Precision thermal camera
+Quantity: 1
+Unit price: USD 2,450.00
+Total: USD 2,450.00
+Business purpose: Thermal validation of the next hardware prototype.
+This is a test fixture, not a real commercial offer.

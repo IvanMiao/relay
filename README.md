@@ -2,6 +2,38 @@
 
 Relay moves non-standard purchase requests through changing company processes, people, and systems—with evidence for every handoff and a verified result for every action.
 
+## Run locally
+
+Use Node.js 22.13 or newer.
+
+~~~sh
+npm ci
+npm run dev -- --port 3100
+~~~
+
+Open [Relay](http://127.0.0.1:3100). The workspace starts in explicitly labeled **UI preview** mode. The procurement portal saves actual local draft records and attachment bytes.
+
+## What works
+
+- Baseten-inspired request workspace with mobile layouts, process route, materials checklist, activity history, and source evidence.
+- Preview reply, action review, decline, pause/resume, and refresh persistence.
+- Live-agent connection adapter for the shared case API; missing endpoints produce an explicit error.
+- [New procurement draft](http://127.0.0.1:3100/portal/new), attachment upload, field validation, persistent records, duplicate prevention, and [saved drafts](http://127.0.0.1:3100/portal/drafts).
+
+The teammate's agent runtime, company-context tools, case API, and autonomous browser executor are **not implemented on this branch**. Preview transitions do not run an agent, send messages, or create drafts. The **Use sample details** control in the portal explicitly loads synthetic form data and a test attachment.
+
+The local portal uses SQLite at data/portal.sqlite, or RELAY_PORTAL_DB if configured. It has no production authentication: use synthetic data and local hosting. A hosted pilot needs authentication and suitable persistent storage.
+
+## Validation
+
+~~~sh
+npm run typecheck
+npm test
+npm run build
+~~~
+
+See the [UI handoff](docs/UI-HANDOFF.md) for routes, payloads, browser verification, and integration instructions.
+
 ## Product documents
 
 - [Product requirements document](docs/PRD.md): problem, core experience, scope, acceptance criteria, and a two-hour prototype plan.
@@ -9,4 +41,4 @@ Relay moves non-standard purchase requests through changing company processes, p
 - [Design direction](docs/DESIGN-DIRECTION.md): Baseten reference study and Relay requirements for layout, typography, components, illustrations, and motion.
 - [Two-person development plan](docs/TWO-PERSON-PLAN.md): individual ownership, integration contracts, checkpoints, and ready-to-use development briefs.
 
-**Status:** Product specification only. No application, live integration, or API validation has been implemented in this repository.
+**Status:** Product UI and local procurement portal implemented. Real agent integration remains the teammate's development track.
