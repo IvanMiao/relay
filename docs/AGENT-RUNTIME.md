@@ -1,6 +1,6 @@
 # OpenAI Agents API 接入层
 
-状态：SDK 适配器已合并；离线测试和真实 API 连通测试均通过。2026-09-12 使用本地配置成功验证会话创建、工具调用及同一会话第二轮的随机 token 记忆。Case worker 与浏览器执行仍未实现。
+状态：SDK 适配器已合并；离线测试和真实 API 连通测试均通过。2026-09-12 使用本地配置成功验证会话创建、工具调用及同一会话第二轮的随机 token 记忆。Case worker 与浏览器执行已完成端到端验证，见 RUNBOOK.md。
 
 ## 三层接口
 
@@ -38,7 +38,7 @@ Relay 界面 → /api/cases → Case 服务与持久化 → OpenAI Agents API se
 调用结果需要按 session/turn/call 持久化；写操作结果不明时先查目标记录。适配器不会自动重试 POST，也不会把执行中断伪装成已确认的工具失败。
 来源：[官方函数工具文档](https://developers.openai.com/api/docs/guides/agents-api/tools/functions)。
 
-当前实现负责单轮事件消费；断线后主动抛错，由 Case worker 读取会话和保存的历史，再恢复工作。它尚未实现自动断线恢复、入站事件队列或执行记录存储。
+当前实现负责单轮事件消费；断线后主动抛错，由 Case worker 读取会话和保存的历史，再恢复工作。恢复通过 recover 读取远程状态和待处理调用，业务 worker 负责入站队列、工具结果和执行记录持久化。
 会话创建成功但尚未拿到 ID 时断线，也不能直接重复创建；这项创建对账仍需在 worker 层实现。
 
 ## 本地配置与验证
@@ -73,4 +73,4 @@ node --test tests/openai-agents.test.mjs
 4. 将受限浏览器工具连接到独立 worker。每次有副作用的操作都核对当前授权；模型声明“用户批准了”不构成授权记录。
 5. 核对真实门户字段与附件后，才更新 `receipt` 与 `completed`。
 
-本次没有实现上述业务 worker 或浏览器工具，也没有把离线测试当成真实 Agents API 连通证明。
+以上业务 worker 与浏览器工具现已实现于 src/server/cases/。真实采购流程和保存响应丢失恢复测试见 INTEGRATION.md。

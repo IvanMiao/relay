@@ -125,9 +125,46 @@ function EvidenceRows({
     </div>
   );
 }
+function reviewRows(payload: Record<string, unknown>): [string, string][] {
+  if (typeof payload.text === "string")
+    return [
+      ["Message", payload.text],
+      ["Channel", "Local demo participant thread"],
+    ];
+  const labels: Record<string, string> = {
+    item: "Item",
+    vendor: "Supplier",
+    quantity: "Quantity",
+    currency: "Currency",
+    unitPrice: "Unit price",
+    costCenter: "Cost center",
+    justification: "Technical justification",
+    requestReference: "Request reference",
+  };
+  const fields =
+    typeof payload.fields === "object" && payload.fields
+      ? (payload.fields as Record<string, unknown>)
+      : payload;
+  const rows: [string, string][] = Object.entries(fields)
+    .filter(([key]) => key in labels)
+    .map(([key, value]) => [labels[key], String(value)]);
+  if (payload.requestReference && fields !== payload)
+    rows.push(["Request reference", String(payload.requestReference)]);
+  if (Array.isArray(payload.attachments))
+    for (const a of payload.attachments)
+      rows.push([
+        "Original attachment",
+        `${a.fileName} · ${a.sizeBytes} bytes · SHA-256 ${a.sha256}`,
+      ]);
+  return rows;
+}
 export function Workspace() {
   const relay = useRelayCase();
   const { snapshot, mode, busy } = relay;
+  const displayId =
+    mode === "live"
+      ? "REQ-" + snapshot.id.slice(-8).toUpperCase()
+      : snapshot.id;
   const [tab, setTab] = useState("overview");
   const [source, setSource] = useState<Evidence | null>(null);
   const [showIntegration, setShowIntegration] = useState(false);
@@ -145,7 +182,7 @@ export function Workspace() {
   const [requestText, setRequestText] = useState(
     "I need a precision thermal camera for thermal validation of our next hardware prototype.",
   );
-  const [quoteArtifactId, setQuoteArtifactId] = useState("");
+  const [quoteArtifactId, setQuoteArtifactId] = useState("quote_northstar_084");
   const [reply, setReply] = useState("");
   const [localMessage, setLocalMessage] = useState("");
   const isPaused = snapshot.status === "paused";
@@ -234,7 +271,7 @@ export function Workspace() {
             <span className="case-dot" />
             <span>
               {snapshot.title}
-              <small>{snapshot.id}</small>
+              <small>{displayId}</small>
             </span>
           </button>
           <button
@@ -266,7 +303,7 @@ export function Workspace() {
             <CaretRight size={13} />
             <span>Requests</span>
             <CaretRight size={13} />
-            <strong>{snapshot.id}</strong>
+            <strong>{displayId}</strong>
             <button
               className={"mode-label " + (mode === "live" ? "live-label" : "")}
               onClick={() =>
@@ -519,6 +556,16 @@ export function Workspace() {
                     {snapshot.receipt.attachmentsChecked} attachment checked ·
                     Draft saved
                   </p>
+                  {safeHref(snapshot.browserObservation?.url) && (
+                    <a
+                      className="text-link"
+                      href={safeHref(snapshot.browserObservation?.url)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View browser verification <ArrowUpRight size={15} />
+                    </a>
+                  )}
                   {snapshot.receipt.simulated && (
                     <Badge>Sample receipt · no actual record</Badge>
                   )}
@@ -642,7 +689,7 @@ export function Workspace() {
                     <section className="details-section">
                       <div className="section-heading">
                         <h2>The request</h2>
-                        <span className="small-mono">{snapshot.id}</span>
+                        <span className="small-mono">{displayId}</span>
                       </div>
                       <dl className="request-facts">
                         <div>
@@ -890,7 +937,7 @@ export function Workspace() {
               <dt>Destination</dt>
               <dd>{reviewed?.destination || "/portal/new"}</dd>
             </div>
-            {Object.entries(reviewed?.payload || {}).map(([key, value]) => (
+            {reviewRows(reviewed?.payload || {}).map(([key, value]) => (
               <div key={key}>
                 <dt>{key}</dt>
                 <dd>
@@ -966,8 +1013,8 @@ export function Workspace() {
           }}
         >
           <p>
-            Switch from the interface preview to your teammate’s case backend.
-            Your existing preview stays saved locally.
+            Start a real agent session using the synthetic Northstar quote. Your
+            existing preview stays saved locally.
           </p>
           <label className="form-label" htmlFor="live-id">
             Existing case ID <span>optional</span>
@@ -979,15 +1026,17 @@ export function Workspace() {
             placeholder="Leave empty to create a case"
           />
           <label className="form-label" htmlFor="quote-artifact">
-            Quote artifact ID
+            Supplier quote
           </label>
-          <input
+          <select
             id="quote-artifact"
             value={quoteArtifactId}
             onChange={(e) => setQuoteArtifactId(e.target.value)}
-            required={!liveCaseId.trim()}
-            placeholder="Registered quote ID from your backend"
-          />
+          >
+            <option value="quote_northstar_084">
+              Northstar thermal camera · USD 2,450 · Demo quote
+            </option>
+          </select>
           <label className="form-label" htmlFor="live-request">
             Request
           </label>
@@ -999,8 +1048,8 @@ export function Workspace() {
             required
           />
           <p className="field-hint">
-            The backend must provide the agreed case API. Connection errors are
-            shown without switching to simulated data.
+            Relay will check the company records and prepare the next action for
+            your review.
           </p>
           {relay.error && (
             <p role="alert" className="error-text">

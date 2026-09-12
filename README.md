@@ -17,10 +17,12 @@ Open [Relay](http://127.0.0.1:3100). The workspace starts in explicitly labeled 
 
 - Baseten-inspired request workspace with mobile layouts, process route, materials checklist, activity history, and source evidence.
 - Preview reply, action review, decline, pause/resume, and refresh persistence.
-- Live-agent connection adapter for the shared case API; missing endpoints produce an explicit error.
+- Persisted live case API, same-session OpenAI continuation, authorization checks, durable jobs and browser execution with receipt verification.
 - [New procurement draft](http://127.0.0.1:3100/portal/new), attachment upload, field validation, persistent records, duplicate prevention, and [saved drafts](http://127.0.0.1:3100/portal/drafts).
 
-The OpenAI Agents API adapter and offline protocol tests are integrated. Company-context tools, the case API/worker, and autonomous browser executor are **not implemented on this branch**. Preview transitions do not run an agent, send messages, or create drafts. The **Use sample details** control in the portal explicitly loads synthetic form data and a test attachment.
+The real agent now reads company evidence, resolves the current coordinator, proposes a local-thread question, continues after the participant reply, obtains draft authorization, operates the actual portal form in an isolated browser, and verifies the resulting fields and attachment bytes. The explicit UI preview remains available and performs no agent actions.
+
+See the [runbook and demo walkthrough](docs/RUNBOOK.md). Google Chrome and a server-side OpenAI application key are required for the live workflow; `npm run dev` starts both the web app and worker.
 
 The local portal uses SQLite at data/portal.sqlite, or RELAY_PORTAL_DB if configured. It has no production authentication: use synthetic data and local hosting. A hosted pilot needs authentication and suitable persistent storage.
 
@@ -42,8 +44,4 @@ See the [UI handoff](docs/UI-HANDOFF.md) for routes, payloads, browser verificat
 - [Two-person development plan](docs/TWO-PERSON-PLAN.md): individual ownership, integration contracts, checkpoints, and ready-to-use development briefs.
 - [Frozen API contract v1](docs/API-CONTRACT.md): case APIs, portal integration, authorization and retry rules. Shared types: [contracts.ts](src/lib/contracts.ts); UI examples: [case snapshots](fixtures/case-snapshots.ts).
 
-**Status:** Product UI and persistent portal implemented; v1 contracts and fixtures merged. Real OpenAI session/tool/continuation probe passed. The case worker and browser executor remain missing, so the full live workflow is not yet available.
-
-See [integration results and remaining work](docs/INTEGRATION.md).
-
-[Agents API runtime and probe](docs/AGENT-RUNTIME.md).
+**Status:** Complete local synthetic-data workflow verified against the real OpenAI Agents API and actual browser-operated portal. See [integration evidence](docs/INTEGRATION.md) and the [runbook](docs/RUNBOOK.md).

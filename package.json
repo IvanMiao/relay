@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1",
+    "dev": "node scripts/dev.mjs",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/portal/*.test.ts src/components/relay/*.test.ts tests/*.test.mjs",
+    "test": "node --import tsx --test src/portal/*.test.ts src/components/relay/*.test.ts src/server/cases/*.test.ts tests/*.test.mjs",
     "format:check": "prettier --check src next.config.ts tsconfig.json package.json",
-    "check:agents": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/check-agents-api.mjs"
+    "check:agents": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/check-agents-api.mjs",
+    "worker": "node --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx src/server/cases/worker.ts"
   },
   "engines": {
     "node": ">=22.13.0"
@@ -20,6 +21,7 @@
     "@phosphor-icons/react": "^2.1.10",
     "next": "^16.3.5",
     "openai": "^7.15.0",
+    "playwright": "^1.63.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "zod": "^4.6.2"

@@ -1,6 +1,6 @@
 # Relay 接口契约 v1
 
-状态：接口冻结；产品 UI 和持久化门户已适配 v1，OpenAI SDK 适配器已合并。Case 服务端、业务 worker 和浏览器执行器尚未实现。适用于本地、合成数据的双人原型。
+状态：接口冻结；产品 UI 和持久化门户已适配 v1，OpenAI SDK 适配器已合并。Case 服务端、持久化 worker 和浏览器执行器已实现并通过真实端到端联调，见 RUNBOOK.md。适用于本地、合成数据的双人原型。
 共享类型以 [`src/lib/contracts.ts`](../src/lib/contracts.ts) 为准；本文定义类型无法表达的行为。
 字段或语义的破坏性修改必须由双方同步更新契约及 fixtures，不能各自修改接口。
 

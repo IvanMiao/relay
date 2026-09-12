@@ -27,7 +27,7 @@ The portal **Use sample details** button explicitly fills the form and attaches 
 
 ## Connect the agent track
 
-Implement the case endpoints from TWO-PERSON-PLAN.md under src/app/api/cases/. Keep agent tools and case storage in src/server/. The portal owns its separate records in src/portal/; do not write into these tables from the case backend.
+The case endpoints are implemented under src/app/api/cases/, with tools and persistence in src/server/cases/. The portal owns its separate records in src/portal/; do not write into these tables from the case backend.
 
 src/lib/contracts.ts is the frozen v1 wire contract from the agent branch. The UI uses contract-adapter.ts to translate it into a separate presentation model. All six teammate fixtures are covered by adapter tests; fixture results cannot connect as live execution.
 
@@ -47,7 +47,7 @@ The UI freezes the payload and case version when a review opens. It disables con
 
 Click **Connect agent** to create a case or load an existing ID. The adapter remembers the selected case ID for refresh and reconnects through the backend. It does not silently replace a failed live connection with preview data. A disconnected initial load shows a reconnection screen, not a fabricated case.
 
-To display the real quote, supply facts.quote.id and implement GET /api/artifacts/:id. New-request artifact upload is not implemented in this UI track; the connection dialog accepts a registered quote artifact ID, or an existing case can supply one. Do not treat the visible preview quote as an artifact uploaded to the agent.
+The real quote is supplied through facts.quote.id and GET /api/artifacts/:id. The connection dialog selects the registered synthetic Northstar quote; arbitrary new-request artifact upload is outside this prototype. Do not treat the visible preview quote as an artifact uploaded to the agent.
 
 ## Procurement destination contract
 
@@ -92,7 +92,7 @@ Use supported destination reads for recovery and verification. The computer-use 
 - HTTP: retrieved attachment matches the original file byte-for-byte; download headers are present; repeated save returns the same ID; changed save returns 409; missing cost center returns 422; unrelated origins return 403; unknown records return 404.
 - Responsive workspace geometry checked at 320, 375, 414, and 768 CSS pixels; no overflowing primary controls or horizontal page overflow. Desktop workspace, portal, and receipt were visually inspected; the receipt was also inspected at phone width.
 
-Reduced-motion styles are included. OS-level reduced-motion emulation and a complete assistive-technology audit were not performed. Live model execution, backend business authorization, real messaging, live-session recovery, and autonomous browser completion await the agent teammate.
+Reduced-motion styles are included. OS-level reduced-motion emulation and a complete assistive-technology audit were not performed. Live model execution, business authorization, durable jobs and autonomous browser completion are now implemented; see RUNBOOK.md and INTEGRATION.md. External messaging remains a local participant simulation.
 
 ## Implementation limits
 

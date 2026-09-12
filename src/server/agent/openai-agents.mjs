@@ -27,7 +27,7 @@ export class OpenAIAgentsRuntime {
   async start({ model, instructions, tools, input, signal }, hooks) {
     const stream = await this.sessions.create(
       {
-        agent: { model, instructions, tools },
+        agent: { model, instructions, tools, reasoning: { effort: "low" } },
         environment: { type: "none" },
         input,
         stream: true,
@@ -65,6 +65,34 @@ export class OpenAIAgentsRuntime {
     await this.sessions.events.create(sessionId, {
       events: [{ type: "agent.session.input.cancel" }],
     });
+  }
+
+  async recover({ sessionId, signal }, hooks) {
+    // Subscribe first; streams do not replay. Reconcile persisted state and pending
+    // calls before listening, without resending the original input message.
+    const stream = await this.sessions.events.stream(sessionId, { signal });
+    try {
+      await this.savedItems(sessionId);
+      const session = await this.sessions.retrieve(sessionId, { signal });
+      if (session.status === "idle")
+        return { sessionId, outcome: "reconciled_idle" };
+      if (session.status === "failed")
+        throw new Error("Saved agent session is failed.");
+      const recovered = {
+        controller: stream.controller,
+        async *[Symbol.asyncIterator]() {
+          if (session.required_actions?.length)
+            yield {
+              type: "agent.session.requires_action",
+              session_id: sessionId,
+            };
+          yield* stream;
+        },
+      };
+      return await this.consume(recovered, sessionId, hooks, signal);
+    } finally {
+      stream.controller.abort();
+    }
   }
 
   async retrieve(sessionId) {

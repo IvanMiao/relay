@@ -176,6 +176,9 @@ export function useRelayCase() {
       const next = liveSnapshot(
         await jsonRequest("/api/cases/" + encodeURIComponent(nextId)),
       );
+      eventIds.current.delete(
+        JSON.stringify(["create", [request, quoteArtifactId]]),
+      );
       setLiveId(nextId);
       setSnapshot(next);
       setMode("live");
