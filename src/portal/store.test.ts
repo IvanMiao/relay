@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createPortalStore } from "./store";
 import { PortalError } from "./schema";
+import { portalRecord } from "./contract";
 
 const fields = {
   requestReference: "TEST-1042",
@@ -24,6 +25,24 @@ const quote = {
     "Synthetic quote: two units at USD 2450 each.",
   ),
 };
+
+test("v1 receipt uses decimal strings and attachment metadata; file order does not create a duplicate", () => {
+  const store = createPortalStore(":memory:");
+  try {
+    const justification = { ...quote, name: "justification.txt" };
+    const input = { ...fields, requestReference: "relay:case_demo:draft:1" };
+    const first = store.create(input, [quote, justification]);
+    const retry = store.create(input, [justification, quote]);
+    assert.equal(first.draft.id, retry.draft.id);
+    const wire = portalRecord(first.draft);
+    assert.equal(wire.fields.unitPrice, "2450.00");
+    assert.equal(wire.attachments[0].fileName, "quote.txt");
+    assert.equal(wire.attachments[0].sizeBytes, quote.bytes.length);
+    assert.equal("requestReference" in wire.fields, false);
+  } finally {
+    store.close();
+  }
+});
 
 test("saved drafts and original attachment bytes survive reopening the database", () => {
   const directory = mkdtempSync(join(tmpdir(), "relay-store-"));

@@ -7,8 +7,8 @@ export const draftFieldsSchema = z.object({
     .string()
     .trim()
     .regex(
-      /^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/,
-      "Use letters, numbers, dashes or underscores.",
+      /^[A-Za-z0-9][A-Za-z0-9_:-]{0,79}$/,
+      "Use letters, numbers, dashes, colons or underscores.",
     ),
   item: z.string().trim().min(2, "Enter an item description.").max(200),
   vendor: z.string().trim().min(2, "Enter a vendor name.").max(160),

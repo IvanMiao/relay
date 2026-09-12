@@ -97,7 +97,14 @@ export function PortalForm({ reference }: { reference: string }) {
     setErrors({});
     try {
       const form = new FormData();
-      Object.entries(values).forEach(([key, value]) => form.set(key, value));
+      const { requestReference, ...fields } = values;
+      form.set(
+        "payload",
+        JSON.stringify({
+          requestReference,
+          fields: { ...fields, quantity: Number(fields.quantity) },
+        }),
+      );
       attachments.forEach((file) => form.append("attachments", file));
       const response = await fetch("/api/portal/drafts", {
         method: "POST",
@@ -105,8 +112,14 @@ export function PortalForm({ reference }: { reference: string }) {
       });
       const body = await response.json();
       if (!response.ok) {
-        setErrors(body.fields || {});
-        throw new Error(body.error || "Could not save the draft.");
+        setErrors(
+          Object.fromEntries(
+            Object.entries(body.error?.fieldErrors || {}).map(
+              ([key, value]) => [key, [String(value)]],
+            ),
+          ),
+        );
+        throw new Error(body.error?.message || "Could not save the draft.");
       }
       const draft = body.draft as PortalDraft;
       setBusy(false);
@@ -240,7 +253,7 @@ export function PortalForm({ reference }: { reference: string }) {
                   maxLength: 80,
                 })}
                 <div className="form-field span-two">
-                  <label htmlFor="justification">Business justification</label>
+                  <label htmlFor="justification">Justification</label>
                   <textarea
                     id="justification"
                     name="justification"
@@ -252,9 +265,12 @@ export function PortalForm({ reference }: { reference: string }) {
                     maxLength={5000}
                     placeholder="What will this purchase help your team do?"
                     aria-invalid={!!errors.justification}
+                    aria-describedby={
+                      errors.justification ? "justification-error" : undefined
+                    }
                   />
                   {errors.justification && (
-                    <span className="error-text">
+                    <span className="error-text" id="justification-error">
                       {errors.justification[0]}
                     </span>
                   )}
@@ -276,13 +292,12 @@ export function PortalForm({ reference }: { reference: string }) {
             >
               <UploadSimple size={26} />
               <strong>Choose files or drop them here</strong>
-              <span>
-                Quote attachment · PDF, TXT, PNG or JPG · Up to 5 MB each
-              </span>
+              <span>Attachments</span>
               <input
                 ref={inputRef}
                 className="file-input"
                 id="attachments"
+                aria-label="Attachments"
                 name="attachments"
                 type="file"
                 accept=".pdf,.txt,.png,.jpg,.jpeg"

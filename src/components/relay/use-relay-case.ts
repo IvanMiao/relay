@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { CaseSnapshot, PreviewScene } from "@/lib/contracts";
+import type { CaseSnapshot, PreviewScene } from "./view-model";
+import { liveSnapshot } from "./contract-adapter";
 import { makePreview } from "./preview";
 
 type SavedPreview = {
@@ -22,7 +23,7 @@ async function jsonRequest(url: string, body?: unknown, signal?: AbortSignal) {
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
     throw new Error(
-      data.error ||
+      (typeof data.error === "string" ? data.error : data.error?.message) ||
         (response.status === 404
           ? "The agent endpoint is not connected yet. Ask your teammate to add the case API, then reconnect."
           : "The agent connection failed. Your last case state is preserved."),
@@ -59,6 +60,13 @@ export function useRelayCase() {
   const [notice, setNotice] = useState("");
   const resumeStatus = useRef<CaseSnapshot["status"]>("waiting_for_reply");
   const pausedPoll = useRef(false);
+  const eventIds = useRef(new Map<string, string>());
+  function stableEvent(operation: string, body: unknown) {
+    const key = JSON.stringify([operation, body]);
+    if (!eventIds.current.has(key))
+      eventIds.current.set(key, crypto.randomUUID());
+    return eventIds.current.get(key)!;
+  }
   useEffect(() => {
     try {
       const saved = JSON.parse(
@@ -103,14 +111,14 @@ export function useRelayCase() {
     const poll = async () => {
       try {
         if (!pausedPoll.current) {
-          const value = parseSnapshot(
+          const value = liveSnapshot(
             await jsonRequest(
               "/api/cases/" + encodeURIComponent(liveId),
               undefined,
               abort.signal,
             ),
           );
-          if (!abort.signal.aborted) {
+          if (!abort.signal.aborted && !pausedPoll.current) {
             setSnapshot((previous) =>
               previous.id !== value.id || value.version >= previous.version
                 ? value
@@ -146,21 +154,26 @@ export function useRelayCase() {
       /* Browser storage may be unavailable. */
     }
   }, []);
-  const connect = async (id: string, request?: string) => {
+  const connect = async (
+    id: string,
+    request?: string,
+    quoteArtifactId?: string,
+  ) => {
     setBusy(true);
     setError("");
     try {
       let nextId = id.trim();
       if (!nextId) {
         const created = await jsonRequest("/api/cases", {
-          request: request || snapshot.title,
-          quoteArtifactId: snapshot.facts.quoteArtifactId,
-          sourceUrl: window.location.origin + "/portal/new",
+          eventId: stableEvent("create", [request, quoteArtifactId]),
+          requestText: request || snapshot.title,
+          quoteArtifactId:
+            quoteArtifactId?.trim() || snapshot.facts.quoteArtifactId,
         });
         nextId = created.id || created.case?.id;
         if (!nextId) throw new Error("The agent did not return a case ID.");
       }
-      const next = parseSnapshot(
+      const next = liveSnapshot(
         await jsonRequest("/api/cases/" + encodeURIComponent(nextId)),
       );
       setLiveId(nextId);
@@ -186,10 +199,10 @@ export function useRelayCase() {
       { expectedVersion: snapshot.version, ...body },
     );
     if (data.case || data.snapshot || data.stage)
-      setSnapshot(parseSnapshot(data));
+      setSnapshot(liveSnapshot(data));
     else
       setSnapshot(
-        parseSnapshot(
+        liveSnapshot(
           await jsonRequest("/api/cases/" + encodeURIComponent(snapshot.id)),
         ),
       );
@@ -207,19 +220,33 @@ export function useRelayCase() {
       if (mode === "live") {
         if (kind === "reply")
           await mutate("replies", {
-            messageId: crypto.randomUUID(),
+            messageId: stableEvent("reply", [
+              snapshot.id,
+              snapshot.version,
+              snapshot.pendingAction?.id,
+              text,
+            ]),
             clarificationId: snapshot.pendingAction?.id,
             text,
           });
         else if (kind === "authorize" || kind === "decline")
           await mutate("authorizations", {
+            eventId: stableEvent("authorization", [
+              snapshot.id,
+              reviewed,
+              kind,
+            ]),
             actionId: reviewed?.actionId || snapshot.pendingAction?.id,
             expectedVersion: reviewed?.expectedVersion ?? snapshot.version,
             decision: kind === "authorize" ? "allow" : "decline",
           });
         else
           await mutate("control", {
-            eventId: crypto.randomUUID(),
+            eventId: stableEvent("control", [
+              snapshot.id,
+              snapshot.version,
+              kind,
+            ]),
             action: kind,
           });
       } else {

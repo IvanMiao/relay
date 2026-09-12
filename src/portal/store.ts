@@ -74,7 +74,20 @@ export function createPortalStore(filename: string, connection?: DatabaseSync) {
           )
           .get(fields.requestReference) as DraftRow | undefined;
         if (existing) {
-          if (existing.fingerprint !== fingerprint)
+          const saved = decode(existing)!;
+          const signatures = (
+            items: { name: string; type: string; sha256: string }[],
+          ) => items.map((a) => JSON.stringify(a)).sort();
+          const oldHashes = saved.attachments.map((a) => ({
+            name: a.name,
+            type: a.contentType,
+            sha256: a.sha256,
+          }));
+          if (
+            JSON.stringify(saved.fields) !== JSON.stringify(fields) ||
+            JSON.stringify(signatures(oldHashes)) !==
+              JSON.stringify(signatures(fileHashes))
+          )
             throw new PortalError(
               409,
               "This request reference already belongs to a different draft. Open the existing record or use a new reference.",

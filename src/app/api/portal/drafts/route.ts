@@ -1,3 +1,4 @@
+import { portalRecord, portalError } from "@/portal/contract";
 import { portalStore } from "@/portal/store";
 import {
   MAX_ATTACHMENTS,
@@ -13,11 +14,9 @@ export async function GET(request: Request) {
   const reference = new URL(request.url).searchParams.get("requestReference");
   if (reference) {
     const draft = portalStore().find(reference);
-    return draft
-      ? Response.json({ draft })
-      : Response.json({ error: "Draft not found." }, { status: 404 });
+    return Response.json({ draft: draft ? portalRecord(draft) : null });
   }
-  return Response.json({ drafts: portalStore().list() });
+  return Response.json({ drafts: portalStore().list().map(portalRecord) });
 }
 
 export async function POST(request: Request) {
@@ -32,15 +31,9 @@ export async function POST(request: Request) {
         source.host !== publicHost ||
         !["http:", "https:"].includes(source.protocol)
       )
-        return Response.json(
-          { error: "Cross-origin writes are not allowed." },
-          { status: 403 },
-        );
+        return portalError(403, "Cross-origin writes are not allowed.");
     } catch {
-      return Response.json(
-        { error: "Invalid request origin." },
-        { status: 403 },
-      );
+      return portalError(403, "Invalid request origin.");
     }
   }
   try {
@@ -67,29 +60,47 @@ export async function POST(request: Request) {
         bytes: new Uint8Array(await file.arrayBuffer()),
       })),
     );
-    const input = Object.fromEntries(
-      [...form.entries()].filter(([key]) => key !== "attachments"),
-    );
+    let input: unknown;
+    if (form.has("payload")) {
+      let payload;
+      try {
+        payload = JSON.parse(String(form.get("payload")));
+      } catch {
+        return portalError(400, "The payload must be valid JSON.");
+      }
+      if (
+        !payload?.fields ||
+        typeof payload.fields.unitPrice !== "string" ||
+        !/^\d+(\.\d{1,2})?$/.test(payload.fields.unitPrice)
+      )
+        return portalError(422, "Use a decimal string for unitPrice.", {
+          unitPrice: ["Use a decimal amount with up to two fractional digits."],
+        });
+      input = { ...payload.fields, requestReference: payload.requestReference };
+    } else {
+      input = Object.fromEntries(
+        [...form.entries()].filter(([key]) => key !== "attachments"),
+      );
+    }
     const result = portalStore().create(input, uploads);
-    return Response.json(result, { status: result.reused ? 200 : 201 });
+    return Response.json(
+      { ...result, draft: portalRecord(result.draft) },
+      { status: result.reused ? 200 : 201 },
+    );
   } catch (error) {
     if (error instanceof PortalError)
-      return Response.json(
-        { error: error.message, fields: error.fields },
-        { status: error.status },
+      return portalError(
+        error.status,
+        error.message,
+        error.fields ||
+          (error.status === 422 ? { attachments: [error.message] } : undefined),
       );
     if (error instanceof TypeError)
-      return Response.json(
-        { error: "Send the draft as multipart form data." },
-        { status: 400 },
-      );
+      return portalError(400, "Send the draft as multipart form data.");
     console.error("Portal draft save failed:", error);
-    return Response.json(
-      {
-        error:
-          "The draft could not be saved. Check existing records before trying again.",
-      },
-      { status: 500 },
+    return portalError(
+      500,
+      "The draft could not be saved. Check existing records before trying again.",
     );
   }
 }

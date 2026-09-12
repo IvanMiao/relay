@@ -2,7 +2,9 @@
 
 **Scope:** One working procurement case in a two-hour prototype. The product UI and local portal track is now implemented; see [UI handoff](UI-HANDOFF.md). Agent development and live integration remain outstanding.
 
-**Default assignment:** The project initiator owns product experience and the test procurement portal. The teammate owns the agent and execution. Swap the people if their strengths suggest it, while keeping the ownership boundaries intact.
+**Current assignment:** You own the agent and execution. Your teammate owns product experience, application setup, and the test procurement portal. The role-based labels below apply throughout this plan.
+
+**Frozen interface:** [API contract v1](API-CONTRACT.md) and [shared TypeScript types](../src/lib/contracts.ts) now define the routes, payloads, field labels, errors, and retry semantics. Use them for implementation; where this earlier plan offers alternatives, the frozen contract takes precedence.
 
 ## 1. Shared finish line
 
@@ -12,7 +14,7 @@ The demo ends at **draft verified, awaiting organizational review**. It uses cle
 
 ## 2. Ownership
 
-| Area | You: product and portal | Teammate: agent and execution |
+| Area | Product / portal owner | Agent / execution owner |
 | --- | --- | --- |
 | Shared setup | Create the web app scaffold; own package files and app configuration | Supply dependency requirements in the first 10 minutes |
 | Relay interface | Embedded case panel, current task, people, evidence drawer, materials, action preview, reply input, pause/resume, receipt | Supply persisted case snapshots and validate incoming actions |
@@ -29,11 +31,11 @@ Suggested file ownership if using a Next.js scaffold:
 
 | Owner | Files/directories |
 | --- | --- |
-| You | Main page, layout, global styles, `src/components/`, `src/app/portal/`, `src/app/api/portal/`, `src/portal/`, package files and configuration |
-| Teammate | `src/app/api/cases/`, `src/app/api/artifacts/`, `src/server/`, `fixtures/` |
-| Teammate maintains; both agree | `src/lib/contracts.ts` |
+| Product / portal owner | Main page, layout, global styles, `src/components/`, `src/app/portal/`, `src/app/api/portal/`, `src/portal/`, package files and configuration |
+| Agent / execution owner | `src/app/api/cases/`, `src/app/api/artifacts/`, `src/server/`, `fixtures/` |
+| Agent / execution owner maintains; both agree | `src/lib/contracts.ts` |
 
-These are proposed paths. Freeze actual paths during setup. Do not independently scaffold two applications or rename shared routes halfway through the build.
+These paths are frozen in the API contract; coordinate any changes before implementation. Do not independently scaffold two applications or rename shared routes halfway through the build.
 
 ## 3. Freeze the interface in the first 10 minutes
 
@@ -66,7 +68,7 @@ Agree on these snapshot fields before starting the UI:
 | `browserObservation` | Optional screenshot artifact and observation time |
 | `receipt` | Verified destination record, or null until verification succeeds |
 
-The teammate supplies fixture snapshots for discovery, waiting for reply, action review, execution, error, and verified completion by minute 20. You render the same contract with a fixture adapter, then switch to live endpoints. Fixture mode must be visibly labeled and never masquerade as live agent progress.
+The agent / execution owner supplies fixture snapshots for discovery, waiting for reply, action review, execution, error, and verified completion by minute 20. The product / portal owner renders the same contract with a fixture adapter, then switches to live endpoints. Fixture mode must be visibly labeled and never masquerade as live agent progress.
 
 ### Procurement portal contract
 
@@ -80,11 +82,11 @@ Publish a plain working portal by minute 30–35, before styling it further:
 
 Freeze field names and receipt shape together. The receipt needs the actual draft ID, request reference, draft status, destination URL, saved fields, and attachment metadata. Relay adds its verification timestamp only after read-back. The browser fills the form and invokes its save control; a direct backend write cannot be presented as computer use.
 
-You own portal validation and unique request-reference enforcement. The teammate owns permission checks, uncertain-action reconciliation, and preventing duplicate execution. A lost response triggers lookup before another save.
+The product / portal owner owns portal validation and unique request-reference enforcement. The agent / execution owner owns permission checks, uncertain-action reconciliation, and preventing duplicate execution. A lost response triggers lookup before another save.
 
 ## 4. Parallel schedule
 
-| Time | You | Teammate | Checkpoint |
+| Time | Product / portal owner | Agent / execution owner | Checkpoint |
 | --- | --- | --- | --- |
 | 0–10 min | Scaffold app and own configuration | Verify credentials, define shared types and fixture fields | App runs; routes and ownership agreed |
 | 10–35 min | Build a plain persistent portal; start case panel against fixtures | Prove session creation, one tool call, and continuation; supply snapshot fixtures | Portal saves and reopens a draft; agent access proven |
@@ -107,14 +109,14 @@ Cut elaborate artwork and motion first. Cut the deliberately induced validation-
 
 ## 6. Individual development briefs
 
-### Brief for you
+### Brief for the product / portal owner
 
 Build Relay's product experience and controlled procurement portal using the PRD and design direction. Own the application scaffold, configuration, interface components, portal form, portal APIs, and portal record persistence. Publish the functional portal by minute 35. Build Relay screens from the agreed case snapshots so backend work does not block you. Implement the request, evidence, reply, action review, pause/resume, execution, and verified receipt states. Keep the design white, typographically strong, rectangular, and restrained with green accents. Coordinate shared dependencies through your branch. Connect to live case endpoints at minute 60 and own the final demo. Leave agent execution and Relay case storage to your teammate.
 
-### Brief for your teammate
+### Brief for the agent / execution owner
 
 Build Relay's agent and execution backend using the PRD and API assessment. Own context fixtures, case/session persistence, case endpoints, authorization checks, agent tools, and the isolated browser worker. Supply shared types and fixture snapshots early. Prove session continuation before building the full flow. Resolve the synthetic ownership/delegation exception from evidence, incorporate a correlated human reply, prepare the draft, and wait for authorization. Operate your teammate's portal through actual browser observations and actions. Reopen the saved draft and verify fields and attachments before returning a receipt. Handle declines, pauses, stale reviews, and uncertain saves. Leave the portal's records and UI to your teammate.
 
 ## 7. Working together in Git
 
-Create separate branches from the same scaffold commit, for example `feat/relay-ui` and `feat/relay-agent`. Merge the scaffold and shared contract early. You own dependency/configuration edits; your teammate requests additions rather than editing the same package files concurrently. Merge or cherry-pick completed work at the checkpoints. Neither person should wait until the final ten minutes to integrate.
+Create separate branches from the same scaffold commit, for example `feat/relay-ui` and `feat/relay-agent`. Merge the scaffold and shared contract early. The product / portal owner owns dependency/configuration edits; the agent / execution owner requests additions rather than editing the same package files concurrently. Merge or cherry-pick completed work at the checkpoints. Neither person should wait until the final ten minutes to integrate.

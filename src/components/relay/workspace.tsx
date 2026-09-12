@@ -34,7 +34,7 @@ import {
   safeHref,
   StepIcon,
 } from "@/components/ui";
-import type { CaseSnapshot, Evidence } from "@/lib/contracts";
+import type { CaseSnapshot, Evidence } from "./view-model";
 import { previewScenes } from "./preview";
 import { useRelayCase } from "./use-relay-case";
 
@@ -145,6 +145,7 @@ export function Workspace() {
   const [requestText, setRequestText] = useState(
     "I need a precision thermal camera for thermal validation of our next hardware prototype.",
   );
+  const [quoteArtifactId, setQuoteArtifactId] = useState("");
   const [reply, setReply] = useState("");
   const [localMessage, setLocalMessage] = useState("");
   const isPaused = snapshot.status === "paused";
@@ -393,47 +394,53 @@ export function Workspace() {
                     </p>
                   </form>
                 )}
-              {snapshot.pendingAction?.type === "create_draft" && !isPaused && (
-                <div className="review-section">
-                  <div className="review-mini">
-                    <FileText size={20} />
-                    <span>
-                      <strong>Purchase draft</strong>
-                      <small>
-                        {money(
-                          snapshot.facts.unitPrice * snapshot.facts.quantity,
-                          snapshot.facts.currency,
-                        )}{" "}
-                        · {snapshot.facts.vendor}
-                      </small>
-                    </span>
+              {(snapshot.pendingAction?.type === "create_draft" ||
+                snapshot.pendingAction?.type === "contact_person") &&
+                !isPaused && (
+                  <div className="review-section">
+                    <div className="review-mini">
+                      <FileText size={20} />
+                      <span>
+                        <strong>
+                          {snapshot.pendingAction?.title || "Purchase draft"}
+                        </strong>
+                        <small>
+                          {money(
+                            snapshot.facts.unitPrice * snapshot.facts.quantity,
+                            snapshot.facts.currency,
+                          )}{" "}
+                          · {snapshot.facts.vendor}
+                        </small>
+                      </span>
+                    </div>
+                    <button
+                      className="button button-primary full-width"
+                      onClick={() => {
+                        if (snapshot.pendingAction) {
+                          setReviewed({
+                            actionId: snapshot.pendingAction.id,
+                            expectedVersion: snapshot.version,
+                            title: snapshot.pendingAction.title,
+                            destination: snapshot.pendingAction.destination,
+                            payload: structuredClone(
+                              snapshot.pendingAction.payload,
+                            ),
+                          });
+                          setShowReview(true);
+                        }
+                      }}
+                      disabled={busy}
+                    >
+                      {snapshot.pendingAction?.type === "contact_person"
+                        ? "Review message"
+                        : "Review draft"}
+                      <ArrowRight size={17} />
+                    </button>
+                    <p className="field-hint">
+                      You review the details before anything is created.
+                    </p>
                   </div>
-                  <button
-                    className="button button-primary full-width"
-                    onClick={() => {
-                      if (snapshot.pendingAction) {
-                        setReviewed({
-                          actionId: snapshot.pendingAction.id,
-                          expectedVersion: snapshot.version,
-                          title: snapshot.title,
-                          destination: snapshot.pendingAction.destination,
-                          payload: structuredClone(
-                            snapshot.pendingAction.payload,
-                          ),
-                        });
-                        setShowReview(true);
-                      }
-                    }}
-                    disabled={busy}
-                  >
-                    Review draft
-                    <ArrowRight size={17} />
-                  </button>
-                  <p className="field-hint">
-                    You review the details before anything is created.
-                  </p>
-                </div>
-              )}
+                )}
               {isPaused && (
                 <div className="review-section">
                   <button
@@ -871,11 +878,12 @@ export function Workspace() {
         onClose={() => setShowReview(false)}
       >
         <div className="dialog-body">
-          <Badge tone="green">CREATE DRAFT ONLY</Badge>
+          <Badge tone="green">REVIEW ACTION</Badge>
           <h3 className="dialog-subtitle">{reviewed?.title}</h3>
           <p>
-            This creates a draft in the test procurement portal. Budget approval
-            and order issuance remain outstanding.
+            Review the exact destination and contents below. This authorizes
+            only the proposed action; budget approval and order issuance remain
+            outstanding.
           </p>
           <dl className="review-fields">
             <div>
@@ -933,7 +941,7 @@ export function Workspace() {
                 ? "Confirming…"
                 : mode === "preview"
                   ? "Preview confirmation"
-                  : "Create draft"}
+                  : "Allow action"}
               <ArrowRight size={16} />
             </button>
           </div>
@@ -953,7 +961,7 @@ export function Workspace() {
           className="dialog-body"
           onSubmit={async (e) => {
             e.preventDefault();
-            if (await relay.connect(liveCaseId, requestText))
+            if (await relay.connect(liveCaseId, requestText, quoteArtifactId))
               setShowIntegration(false);
           }}
         >
@@ -969,6 +977,16 @@ export function Workspace() {
             value={liveCaseId}
             onChange={(e) => setLiveCaseId(e.target.value)}
             placeholder="Leave empty to create a case"
+          />
+          <label className="form-label" htmlFor="quote-artifact">
+            Quote artifact ID
+          </label>
+          <input
+            id="quote-artifact"
+            value={quoteArtifactId}
+            onChange={(e) => setQuoteArtifactId(e.target.value)}
+            required={!liveCaseId.trim()}
+            placeholder="Registered quote ID from your backend"
           />
           <label className="form-label" htmlFor="live-request">
             Request
@@ -1050,7 +1068,8 @@ export function Workspace() {
           onSubmit={async (e) => {
             e.preventDefault();
             if (mode === "live") {
-              if (await relay.connect("", requestText)) setShowRequest(false);
+              if (await relay.connect("", requestText, quoteArtifactId))
+                setShowRequest(false);
             } else {
               setShowRequest(false);
               setShowIntegration(true);

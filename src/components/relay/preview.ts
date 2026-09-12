@@ -1,4 +1,4 @@
-import type { CaseSnapshot, PreviewScene } from "@/lib/contracts";
+import type { CaseSnapshot, PreviewScene } from "./view-model";
 
 export const previewScenes: { id: PreviewScene; label: string }[] = [
   { id: "discovery", label: "Finding the process" },
